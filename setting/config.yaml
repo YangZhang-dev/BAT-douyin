@@ -1,0 +1,18 @@
+app:
+  name: "douyin"
+  mode: "dev"
+  # 运行Gin的模式
+  ip: "127.0.0.1"
+  port: 8080
+  # 运行的端口
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  user: "xxx"
+  password: "xxx"
+  dbname: "xxx"
+
+pprof:
+  port: 6060
+  host: "127.0.0.1"
+
