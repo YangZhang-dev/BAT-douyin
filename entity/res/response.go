@@ -50,7 +50,7 @@ type UserMesResponse struct {
 
 type VideoListRes struct {
 	MyResponse
-	NextTime  uint           `json:"next_time,omitempty"`
+	NextTime  int64          `json:"next_time,omitempty"`
 	VideoList []BaseVideoRes `json:"video_list"`
 }
 

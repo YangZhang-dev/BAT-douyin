@@ -35,6 +35,12 @@ const (
 	ParseError = 80001
 )
 
+//封面信息
+const (
+	CoverWidth  = 2000
+	CoverHeight = 2752
+)
+
 //由于没有开放个人信息编辑功能，所以直接写死，可以自定义图片
 const (
 	SelfIp          = "http://127.0.0.1:8080"
