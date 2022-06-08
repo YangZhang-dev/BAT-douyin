@@ -4,11 +4,10 @@ import (
 	"BAT-douyin/dao/database"
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/model"
-	"fmt"
 )
 
 //拿到所有视频（用于响应）
-func ConvertVideoList(videos []model.Video) []Res.BaseVideoRes {
+func ConvertVideoList(videos []model.Video) ([]Res.BaseVideoRes, error) {
 	videoList := make([]Res.BaseVideoRes, len(videos))
 	if len(videos) != 0 {
 		for i := 0; i < len(videos); i++ {
@@ -16,7 +15,7 @@ func ConvertVideoList(videos []model.Video) []Res.BaseVideoRes {
 			//查找到user
 			err := database.DB.First(&user, "id", videos[i].AuthorID).Error
 			if err != nil {
-				fmt.Println(err)
+				return nil, err
 			}
 			userRes := ConvertUserRes(user)
 			videoList[i].Author = userRes
@@ -30,7 +29,7 @@ func ConvertVideoList(videos []model.Video) []Res.BaseVideoRes {
 
 		}
 	}
-	return videoList
+	return videoList, nil
 }
 
 func ConvertUserRes(user model.User) Res.BaseUserRes {

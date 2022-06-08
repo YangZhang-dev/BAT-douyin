@@ -5,13 +5,13 @@ const Success = 0
 //video错误
 const (
 	//样例
-
-	VideoError = 20001
+	GetVideoError  = 20001
+	SaveVideoError = 20002
 )
 
 //user错误
 const (
-	UserError = 30001
+	UserNotExistsError = 30001
 )
 
 //评论错误

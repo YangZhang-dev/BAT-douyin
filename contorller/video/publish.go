@@ -1,10 +1,11 @@
 package video
 
 import (
-	"BAT-douyin/dao/database"
+	"BAT-douyin/commen"
+	"BAT-douyin/dao/duser"
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
+	"BAT-douyin/pkg/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,18 +18,16 @@ func Publish(c *gin.Context) {
 
 	title := c.PostForm("title")
 
-	user := model.User{}
+	user := duser.GetByToken(token)
 
-	if err := database.DB.First(&user, "token=?", token).Error; err != nil {
-		c.JSON(http.StatusOK, Res.MyResponse{StatusCode: 1, StatusMsg: "User doesn't exist"})
+	if user == nil {
+		Res.SendErrMessage(c, commen.UserNotExistsError, "user does not exists")
 		return
 	}
+
 	data, err2 := c.FormFile("data")
 	if err2 != nil {
-		c.JSON(http.StatusOK, Res.MyResponse{
-			StatusCode: 1,
-			StatusMsg:  err2.Error(),
-		})
+		Res.SendErrMessage(c, commen.GetVideoError, "video error")
 		return
 	}
 
@@ -38,17 +37,20 @@ func Publish(c *gin.Context) {
 	finalVideoName := fmt.Sprintf("%s.mp4", baseFinalName)
 	videoPath := filepath.Join("./static/video/", finalVideoName)
 	if err := c.SaveUploadedFile(data, videoPath); err != nil {
-		c.JSON(http.StatusOK, Res.MyResponse{
-			StatusCode: 1,
-			StatusMsg:  err.Error(),
-		})
+		Res.SendErrMessage(c, commen.SaveVideoError, "error occurred when saving video files")
 		return
 	}
 
-	dvideo.Save(baseFinalName, user.ID, title)
+	go utils.GetCover(videoPath, baseFinalName)
+
+	ok := dvideo.Save(baseFinalName, user.ID, title)
+	if !ok {
+		Res.SendErrMessage(c, commen.SaveVideoError, "error occurred when saving video files")
+		return
+	}
 
 	c.JSON(http.StatusOK, Res.MyResponse{
-		StatusCode: 0,
+		StatusCode: commen.Success,
 		StatusMsg:  finalVideoName + " uploaded successfully",
 	})
 }

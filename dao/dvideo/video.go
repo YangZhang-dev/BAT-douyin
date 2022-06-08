@@ -10,10 +10,9 @@ import (
 
 func GetAllVideos() []model.Video {
 	var Videos []model.Video
-	var video model.Video
-	//如果没有创建表，就创建出这个video表
-	database.DB.AutoMigrate(&video)
-
+	//var video model.Video
+	////如果没有创建表，就创建出这个video表 这个操作在dbInit的时候做了，注释掉。
+	//database.DB.AutoMigrate(&video)
 	database.DB.Limit(30).Find(&Videos)
 	return Videos
 }
