@@ -5,7 +5,6 @@ go 1.18
 require github.com/gin-gonic/gin v1.7.7
 
 require (
-
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/spf13/viper v1.12.0
 	go.uber.org/zap v1.17.0

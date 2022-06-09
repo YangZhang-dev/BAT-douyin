@@ -1,6 +1,7 @@
 package duser
 
 import (
+	"BAT-douyin/commen"
 	"BAT-douyin/dao/database"
 	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
@@ -46,13 +47,6 @@ func Create(username, password string) (*model.User, bool) {
 		return nil, false
 	}
 	return user, true
-}
-func CheckPassword(user model.User, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return false
-	}
-	return true
 }
 
 func GetByName(username string) (*model.User, bool) {

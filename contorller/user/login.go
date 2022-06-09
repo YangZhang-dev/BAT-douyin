@@ -10,14 +10,12 @@ import (
 	"net/http"
 )
 
-var Token string
-
 func Login(c *gin.Context) {
 	username := c.Query("username")
-	password := utils.MD5(c.Query("password"))
-	user, exsit := duser.GetByName(username)
-	if !exsit {
-		Res.SendErrMessage(c, commen.UserNotExist, "user not exsit")
+	password := c.Query("password")
+	user, exists := duser.GetByName(username)
+	if !exists {
+		Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
 		return
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
