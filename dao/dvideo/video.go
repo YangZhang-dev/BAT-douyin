@@ -9,20 +9,20 @@ import (
 	"sync"
 )
 
-func GetAllVideos() []model.Video {
-	var Videos []model.Video
-	//var video model.Video
-	////如果没有创建表，就创建出这个video表 这个操作在dbInit的时候做了，注释掉。
-	//database.DB.AutoMigrate(&video)
-	database.DB.Limit(30).Find(&Videos)
-	return Videos
+func GetAllVideos(u *model.User) []*model.Video {
+	var videos []*model.Video
+	if u != nil {
+		database.DB.Order("created_at DESC").Limit(30).Where("author_id=?", u.ID).Find(&videos)
+	} else {
+		database.DB.Order("created_at DESC").Limit(30).Find(&videos)
+	}
+	return videos
 }
 
 func Save(path string, userid uint, title string) bool {
 	m := sync.Mutex{}
-	//下面的127.0.0.1应该换成自己的服务器的ip地址
-	playurl := fmt.Sprintf("http://%s:8080/static/video/%s.mp4", commen.SelfIp, path)
-	coverurl := fmt.Sprintf("http://%s:8080/static/cover/%s.jpg", commen.SelfIp, path)
+	playurl := fmt.Sprintf("%s/static/video/%s.mp4", commen.SelfIp, path)
+	coverurl := fmt.Sprintf("%s/static/cover/%s.jpg", commen.SelfIp, path)
 	video := model.Video{PlayUrl: playurl, AuthorID: userid, CoverUrl: coverurl, CommentCount: 0, FavoriteCount: 0, Title: title}
 	m.Lock()
 	create := database.DB.Create(&video)
@@ -43,31 +43,18 @@ func LikeVideo(u *model.User, video *model.Video) bool {
 		return false
 	} else {
 		m.Lock()
-		txx := database.DB.Begin()
-		create := txx.Where("user_id=? and video_id=?", uid, vid).Create(&model.FavoriteVideo{UserID: uid, VideoID: vid})
-
-		up1 := txx.Model(&model.Video{ID: vid}).Update("favorite_count", gorm.Expr("favorite_count+?", 1))
-		if up1.RowsAffected == 0 {
-			txx.Rollback()
-			return false
-		}
-		up2 := txx.Model(&model.User{ID: video.AuthorID}).Update("total_favorited", gorm.Expr("total_favorited+?", 1))
-		if up2.RowsAffected == 0 {
-			txx.Rollback()
-			return false
-		}
-		up3 := txx.Model(&model.User{ID: uid}).Update("favorite_count", gorm.Expr("favorite_count+?", 1))
-		if up3.RowsAffected == 0 {
-			txx.Rollback()
-			return false
-		}
-		if create.RowsAffected == 0 {
-			txx.Rollback()
-			return false
-		}
+		tx := database.DB.Begin()
+		create := tx.Where("user_id=? and video_id=?", uid, vid).Create(&model.FavoriteVideo{UserID: uid, VideoID: vid})
+		up1 := tx.Model(&model.Video{ID: vid}).Update("favorite_count", gorm.Expr("favorite_count+?", 1))
+		up2 := tx.Model(&model.User{ID: video.AuthorID}).Update("total_favorited", gorm.Expr("total_favorited+?", 1))
+		up3 := tx.Model(&model.User{ID: uid}).Update("favorite_count", gorm.Expr("favorite_count+?", 1))
 		m.Unlock()
-		txx.Commit()
-		return true
+		if up1.RowsAffected != 0 && up2.RowsAffected != 0 && up3.RowsAffected != 0 && create.RowsAffected != 0 {
+			tx.Commit()
+			return true
+		}
+		tx.Rollback()
+		return false
 	}
 }
 
@@ -81,29 +68,51 @@ func UnlikeVideo(u *model.User, video *model.Video) bool {
 		return false
 	} else {
 		m.Lock()
-		txx := database.DB.Begin()
-		tx := txx.Unscoped().Where("user_id=? and video_id=?", uid, vid).Delete(&model.FavoriteVideo{})
-		if tx.RowsAffected == 0 {
-			txx.Commit()
-			return false
-		}
-		up1 := txx.Model(&model.Video{ID: vid}).Update("favorite_count", gorm.Expr("favorite_count-?", 1))
-		if up1.RowsAffected == 0 {
-			txx.Rollback()
-			return false
-		}
-		up2 := txx.Model(&model.User{ID: video.AuthorID}).Update("total_favorited", gorm.Expr("total_favorited-?", 1))
-		if up2.RowsAffected == 0 {
-			txx.Rollback()
-			return false
-		}
-		up3 := txx.Model(&model.User{ID: uid}).Update("favorite_count", gorm.Expr("favorite_count-?", 1))
-		if up3.RowsAffected == 0 {
-			txx.Rollback()
-			return false
-		}
+		tx := database.DB.Begin()
+		up := tx.Unscoped().Where("user_id=? and video_id=?", uid, vid).Delete(&model.FavoriteVideo{})
+		up1 := tx.Model(&model.Video{ID: vid}).Update("favorite_count", gorm.Expr("favorite_count-?", 1))
+		up2 := tx.Model(&model.User{ID: video.AuthorID}).Update("total_favorited", gorm.Expr("total_favorited-?", 1))
+		up3 := tx.Model(&model.User{ID: uid}).Update("favorite_count", gorm.Expr("favorite_count-?", 1))
 		m.Unlock()
-		txx.Commit()
-		return true
+		if up1.RowsAffected != 0 && up2.RowsAffected != 0 && up3.RowsAffected != 0 && up.RowsAffected != 0 {
+			tx.Commit()
+			return true
+		}
+		tx.Rollback()
+		return false
 	}
+}
+
+func GetById(id uint) (*model.Video, bool) {
+	video := &model.Video{}
+	affected := database.DB.Where("id=?", id).Find(video).RowsAffected
+	if affected == 0 {
+		return nil, false
+	}
+	return video, true
+}
+
+func IsFavoriteVideo(u *model.User, v *model.Video) bool {
+	affected := database.DB.Where("user_id=? and video_id=?", u.ID, v.ID).Find(&model.FavoriteVideo{}).RowsAffected
+	if affected == 0 {
+		return false
+	}
+	return true
+}
+
+func UserFavoriteVideos(u *model.User) []*model.Video {
+	var tmp []model.FavoriteVideo
+	var videolist []*model.Video
+	find := database.DB.Where("user_id=?", u.ID).Find(&tmp)
+	if find.RowsAffected == 0 {
+		return nil
+	}
+	for i := 0; i < len(tmp); i++ {
+		video, ok := GetById(tmp[i].VideoID)
+		if !ok {
+			return nil
+		}
+		videolist = append(videolist, video)
+	}
+	return videolist
 }

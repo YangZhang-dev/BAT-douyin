@@ -12,8 +12,12 @@ import (
 
 func Register(c *gin.Context) {
 
-	username := c.Query("username")
-	password := c.Query("password")
+	username := c.DefaultQuery("username", "")
+	password := c.DefaultQuery("password", "")
+	if username == "" || password == "" {
+		Res.SendErrMessage(c, commen.UsernameOrPasswordIsNull, "username or password must not null")
+		return
+	}
 	//查询用户是否存在   不存在则创建
 	if _, exists := duser.GetByName(username); exists {
 		Res.SendErrMessage(c, commen.UserAlreadyExist, "user already exists")

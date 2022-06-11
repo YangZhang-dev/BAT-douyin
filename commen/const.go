@@ -5,23 +5,35 @@ const Success = 0
 //video错误
 const (
 	//样例
-	GetVideoError  = 20001
-	SaveVideoError = 20002
+	GetVideoError           = 20001
+	SaveVideoError          = 20002
+	UserCannotLikeSelfVideo = 20003
+	LikeVideoWrong          = 20004
+	UnlikeVideoWrong        = 20005
+	VideoNotExists          = 20007
 )
 
 //user错误
 const (
-	UserError           = 30001
-	UserAlreadyExist    = 30002
-	RegisterFailed      = 30003
-	UserNotExist        = 30004
-	UserCreatError      = 30005
-	UserPasswordMistake = 30006
+	UserError                = 30001
+	UserAlreadyExist         = 30002
+	RegisterFailed           = 30003
+	UserNotExist             = 30004
+	UserCreatError           = 30005
+	UserPasswordMistake      = 30006
+	UsernameOrPasswordIsNull = 30007
+	OptionError              = 30008
+	CanNotFollowSelf         = 30009
+	FollowUserWrong          = 30010
+	UnFollowUserWrong        = 30011
 )
 
 //评论错误
 const (
-	CommentError = 40001
+	CommentError       = 40001
+	PostCommentWrong   = 40002
+	CommentNotExists   = 40003
+	DeleteCommentWrong = 40004
 )
 
 //关注错误

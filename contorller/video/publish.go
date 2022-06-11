@@ -21,7 +21,7 @@ func Publish(c *gin.Context) {
 	user := duser.GetByToken(token)
 
 	if user == nil {
-		Res.SendErrMessage(c, commen.UserNotExistsError, "user does not exists")
+		Res.SendErrMessage(c, commen.UserNotExist, "user does not exists")
 		return
 	}
 
@@ -31,8 +31,6 @@ func Publish(c *gin.Context) {
 		return
 	}
 
-	//filename := filepath.Base(data.Filename)
-	//user := usersLoginInfo[token]
 	baseFinalName := fmt.Sprintf("%d_%d", user.ID, time.Now().Unix())
 	finalVideoName := fmt.Sprintf("%s.mp4", baseFinalName)
 	videoPath := filepath.Join("./static/video/", finalVideoName)

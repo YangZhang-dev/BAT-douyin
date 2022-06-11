@@ -11,23 +11,33 @@ import (
 )
 
 func Login(c *gin.Context) {
-	username := c.Query("username")
-	password := c.Query("password")
+
+	username := c.DefaultQuery("username", "")
+	password := c.DefaultQuery("password", "")
+	if username == "" || password == "" {
+		Res.SendErrMessage(c, commen.UsernameOrPasswordIsNull, "username or password must not null")
+		return
+	}
+
 	user, exists := duser.GetByName(username)
 	if !exists {
 		Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
 		return
 	}
+
+	//校验密码
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		Res.SendErrMessage(c, commen.UserPasswordMistake, "password wrong")
 		return
 	}
+
 	token, err := utils.GetToken(username, user.ID)
 	if err != nil {
 		Res.SendErrMessage(c, commen.GetTokenError, "get token failed")
 		return
 	}
+
 	c.JSON(http.StatusOK, Res.UserResponse{
 		MyResponse: Res.MyResponse{
 			StatusCode: commen.Success,

@@ -34,7 +34,7 @@ func RegisterRouter(r *gin.Engine) {
 	//静态文件路由
 	sta := r.Group("/static")
 	{
-		sta.Static("/videos", "./static/video")
+		sta.Static("/video", "./static/video")
 		sta.Static("/avatar", "./static/avatar")
 		sta.Static("/backgroundimage", "./static/backgroundimage")
 		sta.Static("/cover", "./static/cover")
@@ -67,8 +67,8 @@ func RegisterRouter(r *gin.Engine) {
 		rela := douyin.Group("/relation")
 		{
 			rela.POST("/action/", middlewares.Jwt(), relation.Action)
-			rela.GET("follow/list", relation.FollowList)
-			rela.GET("follower/list", relation.FollowerList)
+			rela.GET("follow/list/", relation.FollowList)
+			rela.GET("follower/list/", relation.FollowerList)
 		}
 	}
 	r.NoRoute(func(c *gin.Context) {

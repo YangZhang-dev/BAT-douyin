@@ -1,8 +1,8 @@
 app:
   name: "douyin"
-  mode: "dev"
+  mode: "relase"
   # 运行Gin的模式
-  ip: "127.0.0.1"
+  ip: "http://xxx"
   port: 8080
   # 运行的端口
 mysql:
