@@ -32,7 +32,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GetToken(username, user.ID)
+	token, err := utils.GetToken(user.ID)
 	if err != nil {
 		Res.SendErrMessage(c, commen.GetTokenError, "get token failed")
 		return

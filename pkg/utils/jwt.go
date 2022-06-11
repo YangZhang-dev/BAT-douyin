@@ -6,22 +6,20 @@ import (
 )
 
 type UserClaim struct {
-	Username string
-	UserId   uint
+	UserId uint
 	jwt.StandardClaims
 }
 
 var MySecret = "BAT-douyin"
 
 // GetToken 获取Token
-func GetToken(username string, id uint) (string, error) {
+func GetToken(id uint) (string, error) {
 
 	//设置过期时间为一天
 	expiresAt := time.Now().Add(time.Hour * 24).Unix()
 
-	//设置载荷，username和userid还有过期时间
+	//设置载荷，userid还有过期时间
 	claims := UserClaim{}
-	claims.Username = username
 	claims.UserId = id
 	claims.ExpiresAt = expiresAt
 

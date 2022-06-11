@@ -33,7 +33,7 @@ func Register(c *gin.Context) {
 		Res.SendErrMessage(c, commen.UserCreatError, "user create failed")
 		return
 	}
-	token, err := utils.GetToken(username, u.ID)
+	token, err := utils.GetToken(u.ID)
 	if err != nil {
 		Res.SendErrMessage(c, commen.GetTokenError, "get token failed")
 		return

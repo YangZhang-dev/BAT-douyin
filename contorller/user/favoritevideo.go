@@ -30,7 +30,6 @@ func FavoriteVideo(c *gin.Context) {
 		Res.SendErrMessage(c, commen.UserNotExist, "please login")
 		return
 	}
-
 	v, ok := dvideo.GetById(vid)
 	if !ok {
 		Res.SendErrMessage(c, commen.UserNotExist, "please login")
