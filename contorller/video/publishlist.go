@@ -10,6 +10,7 @@ import (
 	"BAT-douyin/pkg/utils/convert"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func PublishList(c *gin.Context) {
@@ -42,7 +43,7 @@ func PublishList(c *gin.Context) {
 		u = new(model.User)
 	}
 
-	videos := dvideo.GetAllVideos(taru)
+	videos := dvideo.GetAllVideos(taru, time.Now())
 	videoList, err := convert.ConvertVideoList(videos, u)
 	if err != nil {
 		Res.SendErrMessage(c, commen.ParseError, "error occurred when parsing videoList")

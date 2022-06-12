@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"sync"
+	"time"
 )
 
-func GetAllVideos(u *model.User) []*model.Video {
+func GetAllVideos(u *model.User, time time.Time) []*model.Video {
 	var videos []*model.Video
 	if u != nil {
-		database.DB.Order("created_at DESC").Limit(30).Where("author_id=?", u.ID).Find(&videos)
+		database.DB.Order("created_at").Limit(30).Where("author_id=?", u.ID).Find(&videos)
 	} else {
-		database.DB.Order("created_at DESC").Limit(30).Find(&videos)
+		database.DB.Order("created_at").Limit(30).Where("created_at>?", time).Find(&videos)
 	}
 	return videos
 }

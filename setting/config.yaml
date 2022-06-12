@@ -2,15 +2,15 @@ app:
   name: "douyin"
   mode: "relase"
   # 运行Gin的模式
-  ip: "http://xxx"
+  ip: "http://127.0.0.1"
   port: 8080
   # 运行的端口
 mysql:
   host: "127.0.0.1"
   port: 3306
-  user: "xxx"
-  password: "xxx"
-  dbname: "xxx"
+  user: "root"
+  password: "xxxx"
+  dbname: "xxxx"
 
 pprof:
   port: 6060

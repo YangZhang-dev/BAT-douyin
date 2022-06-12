@@ -10,6 +10,7 @@ import (
 	"BAT-douyin/pkg/utils/convert"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -30,17 +31,27 @@ func Feed(c *gin.Context) {
 		u = new(model.User)
 	}
 
-	Videos := dvideo.GetAllVideos(nil)
+	t, err := strconv.ParseInt(c.Query("next_time"), 10, 64)
+	if err != nil {
+		Res.SendErrMessage(c, commen.ParseError, "parse error")
+		return
+	}
+	objtime := time.Unix(t, 0)
+	Videos := dvideo.GetAllVideos(nil, objtime)
 
 	videoList, err := convert.ConvertVideoList(Videos, u)
 	if err != nil {
 		Res.SendErrMessage(c, commen.ParseError, "error occurred when parsing videoList")
 		return
 	}
+	nextTime := time.Now().Unix()
+	if len(videoList) != 0 {
+		nextTime = Videos[0].CreatedAt.Unix()
+	}
 
 	c.JSON(http.StatusOK, Res.VideoListRes{
 		MyResponse: Res.MyResponse{StatusCode: 0},
-		NextTime:   time.Now().Unix(),
+		NextTime:   nextTime,
 		VideoList:  videoList,
 	})
 }
