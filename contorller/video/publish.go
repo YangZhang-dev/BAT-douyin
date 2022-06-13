@@ -6,10 +6,13 @@ import (
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/pkg/utils"
+	"BAT-douyin/redis"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -41,10 +44,15 @@ func Publish(c *gin.Context) {
 
 	go utils.GetCover(videoPath, baseFinalName)
 
-	ok := dvideo.Save(baseFinalName, user.ID, title)
+	v, ok := dvideo.Save(baseFinalName, user.ID, title)
 	if !ok {
 		Res.SendErrMessage(c, commen.SaveVideoError, "error occurred when saving video files")
 		return
+	}
+
+	ok = redis.Redis.Set(strconv.Itoa(int(v.ID)), v, 1*time.Hour)
+	if !ok {
+		zap.L().Error("cache video error")
 	}
 
 	c.JSON(http.StatusOK, Res.MyResponse{

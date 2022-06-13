@@ -5,7 +5,10 @@ import (
 	"BAT-douyin/dao/duser"
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
+	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -30,11 +33,17 @@ func FavoriteVideo(c *gin.Context) {
 		Res.SendErrMessage(c, commen.UserNotExist, "please login")
 		return
 	}
-	v, ok := dvideo.GetById(vid)
-	if !ok {
-		Res.SendErrMessage(c, commen.UserNotExist, "please login")
-		return
+
+	v := &model.Video{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), v)
+	if err != nil {
+		v, ok = dvideo.GetById(vid)
+		if !ok {
+			Res.SendErrMessage(c, commen.UserNotExist, "please login")
+			return
+		}
 	}
+
 	if v.AuthorID == u.ID {
 		Res.SendErrMessage(c, commen.UserCannotLikeSelfVideo, "Use can not favorite self video")
 		return

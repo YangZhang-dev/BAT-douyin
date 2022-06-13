@@ -6,6 +6,8 @@ import (
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -25,11 +27,16 @@ func GetMes(c *gin.Context) {
 	if u == nil {
 		u = new(model.User)
 	}
-	//通过id获取要查看的目标用户
-	taru, exists := duser.GetById(id)
-	if !exists {
-		Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
-		return
+
+	exists := false
+	taru := &model.User{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), taru)
+	if err != nil {
+		taru, exists = duser.GetById(id)
+		if !exists {
+			Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
+			return
+		}
 	}
 
 	//查询登陆用户是否关注目标用户

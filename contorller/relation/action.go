@@ -4,7 +4,10 @@ import (
 	"BAT-douyin/commen"
 	"BAT-douyin/dao/duser"
 	Res "BAT-douyin/entity/res"
+	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,23 +19,34 @@ func Action(c *gin.Context) {
 		return
 	}
 	//获取要关注的用户
-	taruid, ok := utils.ParseStr2Uint(c.Query("to_user_id"))
+	strid := c.Query("to_user_id")
+	taruid, ok := utils.ParseStr2Uint(strid)
 	if !ok {
 		Res.SendErrMessage(c, commen.ParseError, "tarid parse error")
 		return
 	}
-	taru, ok := duser.GetById(taruid)
-	if !ok {
-		Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
-		return
+	exists := false
+	taru := &model.User{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), taru)
+	if err != nil {
+		taru, exists = duser.GetById(taruid)
+		if !exists {
+			Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
+			return
+		}
 	}
 
 	//获取登陆的用户
 	claim, _ := utils.ValidateJwt(c.Query("token"))
-	u, ok := duser.GetById(claim.UserId)
-	if !ok {
-		Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
-		return
+
+	u := &model.User{}
+	err = json.Unmarshal([]byte(redis.Redis.Get(strid)), u)
+	if err != nil {
+		u, exists = duser.GetById(claim.UserId)
+		if !exists {
+			Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
+			return
+		}
 	}
 
 	//不允许自己关注自己

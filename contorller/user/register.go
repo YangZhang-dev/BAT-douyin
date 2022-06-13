@@ -5,9 +5,13 @@ import (
 	"BAT-douyin/dao/duser"
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/pkg/utils"
+	"BAT-douyin/redis"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func Register(c *gin.Context) {
@@ -33,6 +37,12 @@ func Register(c *gin.Context) {
 		Res.SendErrMessage(c, commen.UserCreatError, "user create failed")
 		return
 	}
+
+	ok = redis.Redis.Set(strconv.Itoa(int(u.ID)), u, 1*time.Hour)
+	if !ok {
+		zap.L().Error("cache user error")
+	}
+
 	token, err := utils.GetToken(u.ID)
 	if err != nil {
 		Res.SendErrMessage(c, commen.GetTokenError, "get token failed")

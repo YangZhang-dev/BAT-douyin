@@ -2,7 +2,9 @@ package main
 
 import (
 	"BAT-douyin/dao/database"
+	"BAT-douyin/logger"
 	"BAT-douyin/pkg/mypprof"
+	"BAT-douyin/redis"
 	"BAT-douyin/routes"
 	"BAT-douyin/setting"
 	"fmt"
@@ -20,12 +22,28 @@ func Init() error {
 	}
 	zap.L().Debug("load configured file success")
 
+	//初始化zap日志
+	if err := logger.Init(setting.Conf.LoggerConfig, setting.Conf.AppConfig.Mode); err != nil {
+		zap.L().Error("init logger failed...", zap.Error(err))
+		return err
+	}
+
+	defer zap.L().Sync() // 将缓存中的日志同步到日志文件中
+	zap.L().Debug("init logger success!")
+
 	//初始化mysql
 	if err := database.Init(setting.Conf.MySQLConfig); err != nil {
 		zap.L().Error("init mysql failed...", zap.Error(err))
 		return err
 	}
 	zap.L().Debug("init mysql success")
+
+	//初始化redis
+	if err := redis.Init(setting.Conf.RedisConfig); err != nil {
+		zap.L().Error("init redis failed...", zap.Error(err))
+		return err
+	}
+	zap.L().Debug("init redis success")
 
 	//初始化pprof,pprof不是必须的，出错可以正常工作
 	go func() {

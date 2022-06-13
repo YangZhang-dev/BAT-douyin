@@ -10,9 +10,11 @@ import (
 var Conf = new(Config)
 
 type Config struct {
-	*AppConfig   `mapstructure:"app"`
-	*MySQLConfig `mapstructure:"mysql"`
-	*PprofConfig `mapstructure:"pprof"`
+	*AppConfig    `mapstructure:"app"`
+	*MySQLConfig  `mapstructure:"mysql"`
+	*PprofConfig  `mapstructure:"pprof"`
+	*RedisConfig  `mapstructure:"redis"`
+	*LoggerConfig `mapstructure:"log"`
 }
 
 // AppConfig 项目配置文件
@@ -36,6 +38,22 @@ type MySQLConfig struct {
 type PprofConfig struct {
 	Port int64  `mapstructure:"port"`
 	Host string `mapstructure:"host"`
+}
+
+// RedisConfig  redis配置文件
+type RedisConfig struct {
+	Port int    `mapstructure:"port"`
+	Host string `mapstructure:"host"`
+	DB   int    `mapstructure:"db"`
+}
+
+// LoggerConfig 日志配置文件
+type LoggerConfig struct {
+	Level      string `mapstructure:"level"`
+	Filename   string `mapstructure:"filename"`
+	MaxSize    int    `mapstructure:"max_size"`
+	MaxBackups int    `mapstructure:"max_backups"`
+	MaxAge     int    `mapstructure:"max_age"`
 }
 
 func Init(settingPath string) (err error) {

@@ -5,10 +5,14 @@ import (
 	"BAT-douyin/dao/duser"
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
+	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func List(c *gin.Context) {
@@ -24,7 +28,11 @@ func List(c *gin.Context) {
 		}
 
 	}
-	u, ok := duser.GetById(claims.UserId)
+	u := &model.User{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claims.UserId)))), u)
+	if err != nil {
+		u, ok = duser.GetById(claims.UserId)
+	}
 
 	strvid := c.Query("video_id")
 	vid, ok := utils.ParseStr2Uint(strvid)
@@ -32,11 +40,16 @@ func List(c *gin.Context) {
 		Res.SendErrMessage(c, commen.ParseError, "vid pares error")
 		return
 	}
-	v, exists := dvideo.GetById(vid)
-	if !exists {
-		Res.SendErrMessage(c, commen.VideoNotExists, "user not exists")
-		return
+	v := &model.Video{}
+	err = json.Unmarshal([]byte(redis.Redis.Get(strvid)), v)
+	if err != nil {
+		v, ok = dvideo.GetById(vid)
+		if !ok {
+			Res.SendErrMessage(c, commen.UserNotExist, "please login")
+			return
+		}
 	}
+
 	commentlist, err := convert.GetCommentList(v, u)
 	if err != nil {
 		Res.SendErrMessage(c, commen.ParseError, "Get comment list error")

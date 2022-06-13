@@ -8,6 +8,8 @@ import (
 	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -26,9 +28,15 @@ func Feed(c *gin.Context) {
 			return
 		}
 	}
-	u, ok := duser.GetById(claim.UserId)
-	if !ok {
-		u = new(model.User)
+
+	exists := false
+	u := &model.User{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claim.UserId)))), u)
+	if err != nil {
+		u, exists = duser.GetById(claim.UserId)
+		if !exists {
+			u = new(model.User)
+		}
 	}
 
 	t, err := strconv.ParseInt(c.Query("next_time"), 10, 64)

@@ -8,8 +8,11 @@ import (
 	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func FavoriteList(c *gin.Context) {
@@ -24,9 +27,14 @@ func FavoriteList(c *gin.Context) {
 			return
 		}
 	}
-	u, ok := duser.GetById(claim.UserId)
-	if !ok {
-		u = new(model.User)
+	exists := false
+	u := &model.User{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claim.UserId)))), u)
+	if err != nil {
+		u, exists = duser.GetById(claim.UserId)
+		if !exists {
+			u = new(model.User)
+		}
 	}
 
 	//查询目标用户
@@ -36,10 +44,15 @@ func FavoriteList(c *gin.Context) {
 		Res.SendErrMessage(c, commen.ParseError, "pares error")
 		return
 	}
-	taru, ok := duser.GetById(uid)
-	if !ok {
-		u = new(model.User)
+	taru := &model.User{}
+	err = json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(uid)))), u)
+	if err != nil {
+		taru, exists = duser.GetById(uid)
+		if !exists {
+			u = new(model.User)
+		}
 	}
+
 	videos := dvideo.UserFavoriteVideos(taru)
 	videoList, err := convert.ConvertVideoList(videos, u)
 	if err != nil {

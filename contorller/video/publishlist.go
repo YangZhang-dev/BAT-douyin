@@ -8,6 +8,8 @@ import (
 	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -26,9 +28,14 @@ func PublishList(c *gin.Context) {
 			return
 		}
 	}
-	u, ok := duser.GetById(claim.UserId)
-	if !ok {
-		u = new(model.User)
+	exists := false
+	u := &model.User{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(claim.Id)), u)
+	if err != nil {
+		u, exists = duser.GetById(claim.UserId)
+		if !exists {
+			u = new(model.User)
+		}
 	}
 
 	//查询目标用户
@@ -38,9 +45,14 @@ func PublishList(c *gin.Context) {
 		Res.SendErrMessage(c, commen.ParseError, "pares error")
 		return
 	}
-	taru, ok := duser.GetById(uid)
-	if !ok {
-		u = new(model.User)
+	exists = false
+	taru := &model.User{}
+	err = json.Unmarshal([]byte(redis.Redis.Get(struid)), taru)
+	if err != nil {
+		taru, exists = duser.GetById(uid)
+		if !exists {
+			taru = new(model.User)
+		}
 	}
 
 	videos := dvideo.GetAllVideos(taru, time.Now())

@@ -20,7 +20,7 @@ func GetAllVideos(u *model.User, time time.Time) []*model.Video {
 	return videos
 }
 
-func Save(path string, userid uint, title string) bool {
+func Save(path string, userid uint, title string) (*model.Video, bool) {
 	m := sync.Mutex{}
 	playurl := fmt.Sprintf("%s/static/video/%s.mp4", commen.SelfIp, path)
 	coverurl := fmt.Sprintf("%s/static/cover/%s.jpg", commen.SelfIp, path)
@@ -29,9 +29,9 @@ func Save(path string, userid uint, title string) bool {
 	create := database.DB.Create(&video)
 	m.Unlock()
 	if create.RowsAffected == 0 {
-		return false
+		return nil, false
 	}
-	return true
+	return &video, true
 }
 
 func LikeVideo(u *model.User, video *model.Video) bool {

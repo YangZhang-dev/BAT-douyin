@@ -1,6 +1,6 @@
 app:
   name: "douyin"
-  mode: "relase"
+  mode: "dev"
   # 运行Gin的模式
   ip: "http://127.0.0.1"
   port: 8080
@@ -8,11 +8,22 @@ app:
 mysql:
   host: "127.0.0.1"
   port: 3306
-  user: "root"
-  password: "xxxx"
-  dbname: "xxxx"
+  user: ""
+  password: ""
+  dbname: ""
+
+log:
+  level: "debug"
+  filename: "./log/log.log"
+  max_size: 200
+  max_backups: 5
+  max_age: 30
 
 pprof:
   port: 6060
   host: "127.0.0.1"
 
+redis:
+  host: "127.0.0.1"
+  post: 6379
+  DB: 5

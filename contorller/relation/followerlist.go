@@ -7,9 +7,12 @@ import (
 	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
+	"BAT-douyin/redis"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func FollowerList(c *gin.Context) {
@@ -20,26 +23,37 @@ func FollowerList(c *gin.Context) {
 		Res.SendErrMessage(c, commen.ParseError, "pares error")
 		return
 	}
-	taru, ok := duser.GetById(id)
-	if !ok {
-		Res.SendErrMessage(c, commen.UserNotExist, "User not exists")
-		return
+	exists := false
+	taru := &model.User{}
+	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), taru)
+	if err != nil {
+		taru, exists = duser.GetById(id)
+		if !exists {
+			Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
+			return
+		}
 	}
 	//登陆用户
-	claims := new(utils.UserClaim)
+	claim := new(utils.UserClaim)
 	token := c.Query("token")
 	if token == "" {
 	} else {
-		claims, ok = utils.ValidateJwt(token)
+		claim, ok = utils.ValidateJwt(token)
 		if !ok {
 			Res.SendErrMessage(c, commen.TokenError, "token is not right")
 			return
 		}
 	}
-	u, ok := duser.GetById(claims.UserId)
-	if !ok {
-		u = new(model.User)
+	exists = false
+	u := &model.User{}
+	err = json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claim.UserId)))), u)
+	if err != nil {
+		u, exists = duser.GetById(claim.UserId)
+		if !exists {
+			u = new(model.User)
+		}
 	}
+
 	userlist := duser.FollowerUserList(taru)
 	fmt.Println(userlist)
 	userList, err := convert.ConvertUserListRes(userlist, u, 2)

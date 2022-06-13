@@ -7,8 +7,12 @@ import (
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/pkg/utils"
+	"BAT-douyin/redis"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func Post(c *gin.Context) {
@@ -53,9 +57,14 @@ func Post(c *gin.Context) {
 	//发布评论
 	if op == "1" {
 		com := dcomment.Create(u, v, text)
+
 		if com == nil {
 			Res.SendErrMessage(c, commen.PostCommentWrong, "Post comment wrong")
 			return
+		}
+		ok := redis.Redis.Set(strconv.Itoa(int(com.ID)), com, 1*time.Hour)
+		if !ok {
+			zap.L().Error("cache  video error")
 		}
 		is := duser.IsFollowUser(u, author)
 		c.JSON(http.StatusOK, Res.CommentRes{
@@ -83,6 +92,10 @@ func Post(c *gin.Context) {
 		if !exist {
 			Res.SendErrMessage(c, commen.CommentNotExists, "Comment not exists")
 			return
+		}
+		ok = redis.Redis.Del(strconv.Itoa(int(comment.ID)))
+		if !ok {
+			zap.L().Error("delete cache of video error")
 		}
 		ok = dcomment.Delete(comment, v)
 		if !ok {
