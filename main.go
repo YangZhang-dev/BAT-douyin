@@ -2,9 +2,9 @@ package main
 
 import (
 	"BAT-douyin/dao/database"
+	"BAT-douyin/dao/redis"
 	"BAT-douyin/middlewares/logger"
-	"BAT-douyin/pkg/mypprof"
-	"BAT-douyin/redis"
+	"BAT-douyin/mypprof"
 	"BAT-douyin/routes"
 	"BAT-douyin/setting"
 	"fmt"

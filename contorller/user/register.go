@@ -3,9 +3,9 @@ package user
 import (
 	"BAT-douyin/commen"
 	"BAT-douyin/dao/duser"
+	"BAT-douyin/dao/redis"
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/pkg/utils"
-	"BAT-douyin/redis"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"

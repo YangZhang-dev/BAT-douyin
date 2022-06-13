@@ -3,11 +3,11 @@ package relation
 import (
 	"BAT-douyin/commen"
 	"BAT-douyin/dao/duser"
+	"BAT-douyin/dao/redis"
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/model/tuser"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
-	"BAT-douyin/redis"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"

@@ -6,6 +6,7 @@ import (
 	"BAT-douyin/contorller/user"
 	"BAT-douyin/contorller/video"
 	"BAT-douyin/middlewares"
+	"BAT-douyin/middlewares/logger"
 	"BAT-douyin/setting"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -17,8 +18,11 @@ func Run(conf *setting.AppConfig) error {
 		gin.SetMode(gin.ReleaseMode) // 如果配置文件的model设置为release则gin设置成发布模式，可以去除一些不必要的控制台输出
 	}
 	//使用Gin默认的中间件
-	r := gin.Default()
+	//r := gin.Default()
 
+	//自定义中间件
+	r := gin.New()
+	r.Use(logger.Ginlogger(), logger.GinRecovery(true))
 	//注册路由
 	RegisterRouter(r)
 
