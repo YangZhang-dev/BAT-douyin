@@ -11,8 +11,10 @@ import (
 	"BAT-douyin/redis"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func List(c *gin.Context) {
@@ -32,6 +34,10 @@ func List(c *gin.Context) {
 	err := json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claims.UserId)))), u)
 	if err != nil {
 		u, ok = duser.GetById(claims.UserId)
+		ok = redis.Redis.Set(strconv.Itoa(int(u.ID)), u, 1*time.Hour)
+		if !ok {
+			zap.L().Error("cache user error")
+		}
 	}
 
 	strvid := c.Query("video_id")
@@ -47,6 +53,10 @@ func List(c *gin.Context) {
 		if !ok {
 			Res.SendErrMessage(c, commen.UserNotExist, "please login")
 			return
+		}
+		ok = redis.Redis.Set(strconv.Itoa(int(v.ID)), u, 1*time.Hour)
+		if !ok {
+			zap.L().Error("cache video error")
 		}
 	}
 

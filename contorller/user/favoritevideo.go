@@ -10,7 +10,10 @@ import (
 	"BAT-douyin/redis"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func FavoriteVideo(c *gin.Context) {
@@ -41,6 +44,10 @@ func FavoriteVideo(c *gin.Context) {
 		if !ok {
 			Res.SendErrMessage(c, commen.UserNotExist, "please login")
 			return
+		}
+		ok = redis.Redis.Set(strconv.Itoa(int(v.ID)), v, 1*time.Hour)
+		if !ok {
+			zap.L().Error("cache video error")
 		}
 	}
 

@@ -9,8 +9,11 @@ import (
 	"BAT-douyin/redis"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func Login(c *gin.Context) {
@@ -30,6 +33,10 @@ func Login(c *gin.Context) {
 		if !exists {
 			Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
 			return
+		}
+		ok := redis.Redis.Set(strconv.Itoa(int(user.ID)), user, 1*time.Hour)
+		if !ok {
+			zap.L().Error("cache user error")
 		}
 	}
 

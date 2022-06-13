@@ -9,7 +9,10 @@ import (
 	"BAT-douyin/redis"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func GetMes(c *gin.Context) {
@@ -36,6 +39,10 @@ func GetMes(c *gin.Context) {
 		if !exists {
 			Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
 			return
+		}
+		ok = redis.Redis.Set(strconv.Itoa(int(taru.ID)), taru, 1*time.Hour)
+		if !ok {
+			zap.L().Error("cache user error")
 		}
 	}
 
