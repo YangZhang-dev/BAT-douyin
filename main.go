@@ -2,7 +2,7 @@ package main
 
 import (
 	"BAT-douyin/dao/database"
-	"BAT-douyin/logger"
+	"BAT-douyin/middlewares/logger"
 	"BAT-douyin/pkg/mypprof"
 	"BAT-douyin/redis"
 	"BAT-douyin/routes"
