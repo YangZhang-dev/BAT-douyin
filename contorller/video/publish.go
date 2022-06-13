@@ -50,7 +50,7 @@ func Publish(c *gin.Context) {
 		return
 	}
 
-	ok = redis.Redis.Set(strconv.Itoa(int(v.ID)), v, 1*time.Hour)
+	ok = redis.Redis.Set("v_"+strconv.Itoa(int(v.ID)), v, 1*time.Hour)
 	if !ok {
 		zap.L().Error("cache video error")
 	}

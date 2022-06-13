@@ -2,6 +2,9 @@ package database
 
 import (
 	"BAT-douyin/model"
+	"BAT-douyin/model/tcomment"
+	"BAT-douyin/model/tuser"
+	"BAT-douyin/model/tvideo"
 	"BAT-douyin/setting"
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -25,7 +28,7 @@ func Init(conf *setting.MySQLConfig) (err error) {
 	}
 
 	//如果不存在就创建表
-	err = DB.AutoMigrate(&model.User{}, &model.Video{}, &model.FollowUser{}, &model.FavoriteVideo{}, &model.Comment{})
+	err = DB.AutoMigrate(&tuser.User{}, &tvideo.Video{}, &model.FollowUser{}, &model.FavoriteVideo{}, &tcomment.Comment{})
 	if err != nil {
 		return err
 	}

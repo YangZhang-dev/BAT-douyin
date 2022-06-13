@@ -62,7 +62,7 @@ func Post(c *gin.Context) {
 			Res.SendErrMessage(c, commen.PostCommentWrong, "Post comment wrong")
 			return
 		}
-		ok := redis.Redis.Set(strconv.Itoa(int(com.ID)), com, 1*time.Hour)
+		ok := redis.Redis.Set("c_"+strconv.Itoa(int(com.ID)), com, 1*time.Hour)
 		if !ok {
 			zap.L().Error("cache  video error")
 		}
@@ -93,7 +93,7 @@ func Post(c *gin.Context) {
 			Res.SendErrMessage(c, commen.CommentNotExists, "Comment not exists")
 			return
 		}
-		ok = redis.Redis.Del(strconv.Itoa(int(comment.ID)))
+		ok = redis.Redis.Del("c_" + strconv.Itoa(int(comment.ID)))
 		if !ok {
 			zap.L().Error("delete cache of video error")
 		}

@@ -4,7 +4,7 @@ import (
 	"BAT-douyin/commen"
 	"BAT-douyin/dao/duser"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
+	"BAT-douyin/model/tuser"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
 	"BAT-douyin/redis"
@@ -25,7 +25,7 @@ func FollowList(c *gin.Context) {
 		return
 	}
 	exists := false
-	taru := &model.User{}
+	taru := &tuser.User{}
 	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), taru)
 	if err != nil {
 		taru, exists = duser.GetById(id)
@@ -50,12 +50,12 @@ func FollowList(c *gin.Context) {
 		}
 	}
 	exists = false
-	u := &model.User{}
+	u := &tuser.User{}
 	err = json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claim.UserId)))), u)
 	if err != nil {
 		u, exists = duser.GetById(claim.UserId)
 		if !exists {
-			u = new(model.User)
+			u = new(tuser.User)
 		}
 	}
 	userlist := duser.FollowUserList(taru)

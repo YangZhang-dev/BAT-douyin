@@ -4,16 +4,10 @@ import (
 	"BAT-douyin/commen"
 	"BAT-douyin/dao/duser"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
 	"BAT-douyin/pkg/utils"
-	"BAT-douyin/redis"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 func Login(c *gin.Context) {
@@ -25,23 +19,14 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	exists := false
-	user := &model.User{}
-	err := json.Unmarshal([]byte(redis.Redis.Get(username)), user)
-	if err != nil {
-		user, exists = duser.GetByName(username)
-		if !exists {
-			Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
-			return
-		}
-		ok := redis.Redis.Set(strconv.Itoa(int(user.ID)), user, 1*time.Hour)
-		if !ok {
-			zap.L().Error("cache user error")
-		}
+	user, exists := duser.GetByName(username)
+	if !exists {
+		Res.SendErrMessage(c, commen.UserNotExist, "user not exists")
+		return
 	}
 
 	//校验密码
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		Res.SendErrMessage(c, commen.UserPasswordMistake, "password wrong")
 		return

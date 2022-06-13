@@ -5,7 +5,7 @@ import (
 	"BAT-douyin/dao/duser"
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
+	"BAT-douyin/model/tvideo"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/redis"
 	"encoding/json"
@@ -37,15 +37,15 @@ func FavoriteVideo(c *gin.Context) {
 		return
 	}
 
-	v := &model.Video{}
-	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), v)
+	v := &tvideo.Video{}
+	err := json.Unmarshal([]byte(redis.Redis.Get("v_"+strid)), v)
 	if err != nil {
 		v, ok = dvideo.GetById(vid)
 		if !ok {
 			Res.SendErrMessage(c, commen.UserNotExist, "please login")
 			return
 		}
-		ok = redis.Redis.Set(strconv.Itoa(int(v.ID)), v, 1*time.Hour)
+		ok = redis.Redis.Set("v_"+strconv.Itoa(int(v.ID)), v, 1*time.Hour)
 		if !ok {
 			zap.L().Error("cache video error")
 		}

@@ -9,6 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/spf13/viper v1.12.0
+	github.com/vmihailenco/msgpack v4.0.4+incompatible
 	go.uber.org/zap v1.17.0
 	gorm.io/driver/mysql v1.2.3
 	gorm.io/gorm v1.22.5
@@ -18,6 +19,8 @@ require (
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
 

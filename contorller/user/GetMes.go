@@ -4,7 +4,7 @@ import (
 	"BAT-douyin/commen"
 	"BAT-douyin/dao/duser"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
+	"BAT-douyin/model/tuser"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/redis"
 	"encoding/json"
@@ -28,11 +28,11 @@ func GetMes(c *gin.Context) {
 	//尝试通过Token获取登陆用户
 	u := duser.GetByToken(token)
 	if u == nil {
-		u = new(model.User)
+		u = new(tuser.User)
 	}
 
 	exists := false
-	taru := &model.User{}
+	taru := &tuser.User{}
 	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), taru)
 	if err != nil {
 		taru, exists = duser.GetById(id)

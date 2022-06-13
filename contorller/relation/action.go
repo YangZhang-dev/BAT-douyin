@@ -4,7 +4,7 @@ import (
 	"BAT-douyin/commen"
 	"BAT-douyin/dao/duser"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
+	"BAT-douyin/model/tuser"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/redis"
 	"encoding/json"
@@ -29,7 +29,7 @@ func Action(c *gin.Context) {
 		return
 	}
 	exists := false
-	taru := &model.User{}
+	taru := &tuser.User{}
 	err := json.Unmarshal([]byte(redis.Redis.Get(strid)), taru)
 	if err != nil {
 		taru, exists = duser.GetById(taruid)
@@ -46,7 +46,7 @@ func Action(c *gin.Context) {
 	//获取登陆的用户
 	claim, _ := utils.ValidateJwt(c.Query("token"))
 
-	u := &model.User{}
+	u := &tuser.User{}
 	err = json.Unmarshal([]byte(redis.Redis.Get(strid)), u)
 	if err != nil {
 		u, exists = duser.GetById(claim.UserId)

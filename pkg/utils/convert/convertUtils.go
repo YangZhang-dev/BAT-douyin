@@ -6,14 +6,16 @@ import (
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
 	"BAT-douyin/model"
+	"BAT-douyin/model/tuser"
+	"BAT-douyin/model/tvideo"
 	"errors"
 )
 
 // ConvertVideoList 拿到所有视频（用于响应）
-func ConvertVideoList(videos []*model.Video, u *model.User) ([]Res.BaseVideoRes, error) {
+func ConvertVideoList(videos []*tvideo.Video, u *tuser.User) ([]Res.BaseVideoRes, error) {
 	videoList := make([]Res.BaseVideoRes, len(videos))
 	for i := 0; i < len(videos); i++ {
-		var author *model.User
+		var author *tuser.User
 		//查找到user
 		author, exists := duser.GetById(videos[i].AuthorID)
 		if !exists {
@@ -34,7 +36,7 @@ func ConvertVideoList(videos []*model.Video, u *model.User) ([]Res.BaseVideoRes,
 	return videoList, nil
 }
 
-func ConvertUserRes(author, u *model.User) Res.BaseUserRes {
+func ConvertUserRes(author, u *tuser.User) Res.BaseUserRes {
 	var userRes Res.BaseUserRes
 
 	userRes.Id = author.ID
@@ -46,10 +48,6 @@ func ConvertUserRes(author, u *model.User) Res.BaseUserRes {
 	userRes.BackgroundImage = author.BackgroundImage
 	userRes.TotalFavorited = author.TotalFavorited
 	userRes.FavoriteCount = author.FavoriteCount
-	//is :=false
-	//if u.ID!=0 {
-	//	is = duser.IsFollowUser(u, author)
-	//}
 	is := duser.IsFollowUser(u, author)
 	userRes.Isfollow = is
 	return userRes
@@ -57,11 +55,11 @@ func ConvertUserRes(author, u *model.User) Res.BaseUserRes {
 }
 
 // op为2表示粉丝列表,1为关注列表
-func ConvertUserListRes(users []model.FollowUser, u *model.User, op uint) ([]Res.BaseUserRes, error) {
+func ConvertUserListRes(users []model.FollowUser, u *tuser.User, op uint) ([]Res.BaseUserRes, error) {
 
 	userRes := make([]Res.BaseUserRes, len(users))
 	for i := 0; i < len(users); i++ {
-		var taru *model.User
+		var taru *tuser.User
 		var ok bool
 		if op == 2 {
 			taru, ok = duser.GetById(users[i].UserID)
@@ -89,7 +87,7 @@ func ConvertUserListRes(users []model.FollowUser, u *model.User, op uint) ([]Res
 	}
 	return userRes, nil
 }
-func GetCommentList(v *model.Video, u *model.User) ([]Res.BaseCommentListRes, error) {
+func GetCommentList(v *tvideo.Video, u *tuser.User) ([]Res.BaseCommentListRes, error) {
 	commentlist := dcomment.GetList(v)
 	reslist := make([]Res.BaseCommentListRes, len(commentlist))
 

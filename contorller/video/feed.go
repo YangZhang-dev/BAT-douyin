@@ -5,7 +5,7 @@ import (
 	"BAT-douyin/dao/duser"
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
+	"BAT-douyin/model/tuser"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
 	"BAT-douyin/redis"
@@ -30,16 +30,16 @@ func Feed(c *gin.Context) {
 	}
 
 	exists := false
-	u := &model.User{}
+	u := &tuser.User{}
 	err := json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claim.UserId)))), u)
 	if err != nil {
 		u, exists = duser.GetById(claim.UserId)
 		if !exists {
-			u = new(model.User)
+			u = new(tuser.User)
 		}
 	}
 
-	t, err := strconv.ParseInt(c.Query("next_time"), 10, 64)
+	t, err := strconv.ParseInt(c.DefaultQuery("latest_time", "0"), 10, 64)
 	if err != nil {
 		Res.SendErrMessage(c, commen.ParseError, "parse error")
 		return
@@ -52,6 +52,7 @@ func Feed(c *gin.Context) {
 		Res.SendErrMessage(c, commen.ParseError, "error occurred when parsing videoList")
 		return
 	}
+
 	nextTime := time.Now().Unix()
 	if len(videoList) != 0 {
 		nextTime = Videos[0].CreatedAt.Unix()

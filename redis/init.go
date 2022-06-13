@@ -4,6 +4,7 @@ package redis
 import (
 	"BAT-douyin/setting"
 	"context"
+	"fmt"
 	redis "github.com/go-redis/redis/v8"
 	"time"
 )
@@ -49,6 +50,7 @@ func (rds RedisClient) Ping() error {
 // Set 存储 key 对应的 value，且设置 expiration 过期时间
 func (rds RedisClient) Set(key string, value interface{}, expiration time.Duration) bool {
 	if err := rds.Client.Set(rds.Context, key, value, expiration).Err(); err != nil {
+		fmt.Println(err.Error())
 		return false
 	}
 	return true

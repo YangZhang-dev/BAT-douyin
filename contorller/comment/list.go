@@ -5,7 +5,8 @@ import (
 	"BAT-douyin/dao/duser"
 	"BAT-douyin/dao/dvideo"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/model"
+	"BAT-douyin/model/tuser"
+	"BAT-douyin/model/tvideo"
 	"BAT-douyin/pkg/utils"
 	"BAT-douyin/pkg/utils/convert"
 	"BAT-douyin/redis"
@@ -30,7 +31,7 @@ func List(c *gin.Context) {
 		}
 
 	}
-	u := &model.User{}
+	u := &tuser.User{}
 	err := json.Unmarshal([]byte(redis.Redis.Get(strconv.Itoa(int(claims.UserId)))), u)
 	if err != nil {
 		u, ok = duser.GetById(claims.UserId)
@@ -46,15 +47,15 @@ func List(c *gin.Context) {
 		Res.SendErrMessage(c, commen.ParseError, "vid pares error")
 		return
 	}
-	v := &model.Video{}
-	err = json.Unmarshal([]byte(redis.Redis.Get(strvid)), v)
+	v := &tvideo.Video{}
+	err = json.Unmarshal([]byte(redis.Redis.Get("v_"+strvid)), v)
 	if err != nil {
 		v, ok = dvideo.GetById(vid)
 		if !ok {
 			Res.SendErrMessage(c, commen.UserNotExist, "please login")
 			return
 		}
-		ok = redis.Redis.Set(strconv.Itoa(int(v.ID)), u, 1*time.Hour)
+		ok = redis.Redis.Set("v_"+strconv.Itoa(int(v.ID)), u, 1*time.Hour)
 		if !ok {
 			zap.L().Error("cache video error")
 		}
