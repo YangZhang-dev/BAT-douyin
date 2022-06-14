@@ -14,7 +14,7 @@ mysql:
 
 log:
   level: "debug"
-  filename: "./log/log.log"
+  filename: "../log/log.log"
   max_size: 200
   max_backups: 5
   max_age: 30
@@ -27,3 +27,8 @@ redis:
   host: "127.0.0.1"
   post: 6379
   DB: 5
+
+cos:
+  url: ""
+  sid: ""
+  skey: ""

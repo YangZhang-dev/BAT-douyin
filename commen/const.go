@@ -1,16 +1,19 @@
 package commen
 
+import (
+	"BAT-douyin/setting"
+	"errors"
+	"fmt"
+)
+
 const Success = 0
 
 //video错误
 const (
 	//样例
-	GetVideoError           = 20001
-	SaveVideoError          = 20002
-	UserCannotLikeSelfVideo = 20003
-	LikeVideoWrong          = 20004
-	UnlikeVideoWrong        = 20005
-	VideoNotExists          = 20007
+	GetVideoError  = 20001
+	SaveVideoError = 20002
+	VideoNotExists = 20003
 )
 
 //user错误
@@ -23,9 +26,6 @@ const (
 	UserPasswordMistake      = 30006
 	UsernameOrPasswordIsNull = 30007
 	OptionError              = 30008
-	CanNotFollowSelf         = 30009
-	FollowUserWrong          = 30010
-	UnFollowUserWrong        = 30011
 )
 
 //评论错误
@@ -38,26 +38,42 @@ const (
 
 //关注错误
 const (
-	FollowError = 50001
+	FollowError       = 50001
+	UnFollowUserWrong = 50002
+	FollowUserWrong   = 50003
+	CanNotFollowSelf  = 50004
 )
 
 //点赞错误
 const (
-	FavoriteError = 60001
+	FavoriteError           = 60001
+	LikeVideoWrong          = 60002
+	UnlikeVideoWrong        = 60003
+	UserCannotLikeSelfVideo = 60004
 )
 
 //token和parse错误
 const (
 	TokenError           = 70001
+	GetTokenError        = 70002
 	ParseError           = 80001
 	PasswordEncryptError = 80002
-	GetTokenError        = 70002
 )
 
 //由于没有开放个人信息编辑功能，所以直接写死，可以自定义图片
-const (
-	SelfIp          = "http://127.0.0.1:8080"
+var (
+	CosDNS          string
 	Signature       = "我是无敌暴龙战神"
-	BackgroundImage = SelfIp + "/static/backgroundimage/default.jpg"
-	Avatar          = SelfIp + "/static/avatar/default.jpg"
+	BackgroundImage string
+	Avatar          string
 )
+
+func Init(conf *setting.CosConfig) error {
+	CosDNS = conf.Url
+	BackgroundImage = fmt.Sprintf("%s/backgroundimage/default.jpg", CosDNS)
+	Avatar = fmt.Sprintf("%s/avatar/default.jpg", CosDNS)
+	if CosDNS == "" {
+		return errors.New("init const wrong")
+	}
+	return nil
+}

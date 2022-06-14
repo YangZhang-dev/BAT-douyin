@@ -15,17 +15,17 @@ import (
 func GetAllVideos(u *tuser.User, time time.Time) []*tvideo.Video {
 	var videos []*tvideo.Video
 	if u != nil {
-		database.DB.Order("created_at").Limit(30).Where("author_id=?", u.ID).Find(&videos)
+		database.DB.Order("created_at DESC").Limit(30).Where("author_id=?", u.ID).Find(&videos)
 	} else {
-		database.DB.Order("created_at").Limit(30).Where("created_at>?", time).Find(&videos)
+		database.DB.Order("created_at DESC").Limit(30).Where("created_at>?", time).Find(&videos)
 	}
 	return videos
 }
 
 func Save(path string, userid uint, title string) (*tvideo.Video, bool) {
 	m := sync.Mutex{}
-	playurl := fmt.Sprintf("%s/static/video/%s.mp4", commen.SelfIp, path)
-	coverurl := fmt.Sprintf("%s/static/cover/%s.jpg", commen.SelfIp, path)
+	playurl := fmt.Sprintf("%s/video/%s.mp4", commen.CosDNS, path)
+	coverurl := fmt.Sprintf("%s/cover/%s_0.jpg", commen.CosDNS, path)
 	video := tvideo.Video{PlayUrl: playurl, AuthorID: userid, CoverUrl: coverurl, CommentCount: 0, FavoriteCount: 0, Title: title}
 	m.Lock()
 	create := database.DB.Create(&video)

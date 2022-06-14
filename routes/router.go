@@ -35,15 +35,6 @@ func Run(conf *setting.AppConfig) error {
 
 func RegisterRouter(r *gin.Engine) {
 
-	//静态文件路由
-	sta := r.Group("/static")
-	{
-		sta.Static("/video", "./static/video")
-		sta.Static("/avatar", "./static/avatar")
-		sta.Static("/backgroundimage", "./static/backgroundimage")
-		sta.Static("/cover", "./static/cover")
-
-	}
 	douyin := r.Group("/douyin")
 	{
 		douyin.GET("/feed", video.Feed)

@@ -2,16 +2,15 @@ package video
 
 import (
 	"BAT-douyin/commen"
+	"BAT-douyin/cos"
 	"BAT-douyin/dao/duser"
 	"BAT-douyin/dao/dvideo"
 	"BAT-douyin/dao/redis"
 	Res "BAT-douyin/entity/res"
-	"BAT-douyin/pkg/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -36,14 +35,18 @@ func Publish(c *gin.Context) {
 
 	baseFinalName := fmt.Sprintf("%d_%d", user.ID, time.Now().Unix())
 	finalVideoName := fmt.Sprintf("%s.mp4", baseFinalName)
-	videoPath := filepath.Join("./static/video/", finalVideoName)
-	if err := c.SaveUploadedFile(data, videoPath); err != nil {
-		Res.SendErrMessage(c, commen.SaveVideoError, "error occurred when saving video files")
+	//videoPath := filepath.Join("./static/video/", finalVideoName)
+	file, err := (*data).Open()
+	if err != nil {
+		Res.SendErrMessage(c, commen.SaveVideoError, "save video files error")
 		return
 	}
 
-	go utils.GetCover(videoPath, baseFinalName)
-
+	err = cos.PutVideo2Cos(cos.CosClient, baseFinalName, file)
+	if err != nil {
+		Res.SendErrMessage(c, commen.SaveVideoError, "save video to cos wrong")
+		return
+	}
 	v, ok := dvideo.Save(baseFinalName, user.ID, title)
 	if !ok {
 		Res.SendErrMessage(c, commen.SaveVideoError, "error occurred when saving video files")

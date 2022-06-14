@@ -1,6 +1,8 @@
 package main
 
 import (
+	"BAT-douyin/commen"
+	"BAT-douyin/cos"
 	"BAT-douyin/dao/database"
 	"BAT-douyin/dao/redis"
 	"BAT-douyin/middlewares/logger"
@@ -44,6 +46,20 @@ func Init() error {
 		return err
 	}
 	zap.L().Debug("init redis success")
+
+	//初始化cos
+	if err := cos.Init(setting.Conf.CosConfig); err != nil {
+		zap.L().Error("init cos failed...", zap.Error(err))
+		return err
+	}
+	zap.L().Debug("init cos success")
+
+	//初始化全局变量
+	if err := commen.Init(setting.Conf.CosConfig); err != nil {
+		zap.L().Error("init const failed...", zap.Error(err))
+		return err
+	}
+	zap.L().Debug("init const success")
 
 	//初始化pprof,pprof不是必须的，出错可以正常工作
 	go func() {

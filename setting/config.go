@@ -15,6 +15,7 @@ type Config struct {
 	*PprofConfig  `mapstructure:"pprof"`
 	*RedisConfig  `mapstructure:"redis"`
 	*LoggerConfig `mapstructure:"log"`
+	*CosConfig    `mapstructure:"cos"`
 }
 
 // AppConfig 项目配置文件
@@ -54,6 +55,11 @@ type LoggerConfig struct {
 	MaxSize    int    `mapstructure:"max_size"`
 	MaxBackups int    `mapstructure:"max_backups"`
 	MaxAge     int    `mapstructure:"max_age"`
+}
+type CosConfig struct {
+	Url  string `mapstructure:"url"`
+	Sid  string `mapstructure:"sid"`
+	Skey string `mapstructure:"skey"`
 }
 
 func Init(settingPath string) (err error) {
