@@ -64,6 +64,7 @@ func (rds RedisClient) Get(key string) string {
 			return ""
 		}
 	}
+	rds.Client.Expire(rds.Context, key, 1*time.Hour)
 	return result
 }
 
